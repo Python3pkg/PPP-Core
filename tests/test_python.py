@@ -72,6 +72,6 @@ class TestPython(PPPTestCase(app)):
             finally:
                 (fakelogger, router.logger) = (router.logger, logger)
             self.assertEqual(len(answers), 3, answers)
-            self.assertEqual(len(list(filter(lambda x:x.tree.value == 'foo', answers))), 1)
-            self.assertEqual(len(list(filter(lambda x:x.tree.value == 'one', answers))), 2)
+            self.assertEqual(len(list([x for x in answers if x.tree.value == 'foo'])), 1)
+            self.assertEqual(len(list([x for x in answers if x.tree.value == 'one'])), 2)
             self.assertEqual(len(fakelogger._errors), 4, fakelogger._errors)

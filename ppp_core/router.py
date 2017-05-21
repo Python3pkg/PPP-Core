@@ -35,11 +35,11 @@ logger = logging.getLogger('router')
 
 def freeze(obj):
     if isinstance(obj, dict):
-        return frozenset((freeze(x), freeze(y)) for (x,y) in obj.items())
+        return frozenset((freeze(x), freeze(y)) for (x,y) in list(obj.items()))
     elif isinstance(obj, list):
         return tuple(map(freeze, obj))
     elif isinstance(obj, set):
-        return frozenset(map(freeze, obj))
+        return frozenset(list(map(freeze, obj)))
     elif isinstance(obj, TraceItem):
         return freeze(obj.as_dict())
     elif isinstance(obj, (str, tuple, frozenset, int, float)):
@@ -49,7 +49,7 @@ def freeze(obj):
 
 def answer_id(answer):
     return (answer.language, answer.tree,
-            frozenset(answer.measures.items()))
+            frozenset(list(answer.measures.items())))
 def remove_duplicates(reference, new):
     result = []
     for x in new:
@@ -107,11 +107,11 @@ class Router:
         # First make all requests so modules can prepare their answer
         # while we send requests to other modules
         streams = self._get_streams(request)
-        answers = map(self._stream_reader, streams)
-        answers = map(self._process_answers, answers)
+        answers = list(map(self._stream_reader, streams))
+        answers = list(map(self._process_answers, answers))
         answers = itertools.chain(*list(answers)) # Flatten answers lists
         answers = itertools.chain(self._get_python(request), answers)
-        answers = filter(bool, answers) # Eliminate None values
+        answers = list(filter(bool, answers)) # Eliminate None values
         return answers
 
     def _get_python_class(self, url):
@@ -170,7 +170,7 @@ class Router:
     def _process_answers(self, t):
         if t:
             (module, answers) = t
-            answers = map(Response.from_dict, answers)
+            answers = list(map(Response.from_dict, answers))
             return list(map(functools.partial(self._process_answer, module), answers))
         else:
             return []
